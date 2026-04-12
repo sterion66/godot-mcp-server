@@ -141,26 +141,195 @@ python godot_mcp_server.py --transport http --port 8765
 
 ## Configuration
 
-Set `GODOT_MCP_ROOT` in the MCP server `env` if you do not use the default `~/godot-games`. See [Workspace setup](#workspace-setup-required). Shipped configs already set `GODOT_MCP_ALLOW_GODOT_EXEC`; see [Godot execution (environment)](#godot-execution-environment).
+Set `GODOT_MCP_ROOT` in the MCP server `env` if you do not use the default `~/godot-games`. See [Workspace setup](#workspace-setup-required). Shipped snippets below include `GODOT_MCP_ALLOW_GODOT_EXEC`; see [Godot execution (environment)](#godot-execution-environment).
+
+**Path to the server:** Examples use `"args": ["godot_mcp_server.py"]` assuming the MCP process runs with its **working directory** at the folder that contains the script (e.g. you cloned this repo). If the server fails to start, replace that with the **absolute path** to `godot_mcp_server.py` on your machine.
+
+### Install in your editor
+
+Expand a section and paste the JSON into the file your tool expects. The same `godot` server block is in the repo as `mcp_config.*.json` for copy-paste.
+
+<details>
+<summary><strong>Cursor</strong></summary>
+
+**macOS / Linux (project or user config)** — Settings → MCP → *Add new global MCP server* **or** create `.cursor/mcp.json` in a project root:
+
+```json
+{
+  "mcpServers": {
+    "godot": {
+      "command": "python3",
+      "args": ["godot_mcp_server.py"],
+      "env": {
+        "GODOT_MCP_ALLOW_GODOT_EXEC": "1"
+      }
+    }
+  }
+}
+```
+
+**Windows** — if `python` is not on PATH for the MCP host, use the launcher or full path to `python.exe`, and prefer an **absolute** path in `args`:
+
+```json
+{
+  "mcpServers": {
+    "godot": {
+      "command": "cmd",
+      "args": ["/c", "python", "C:\\path\\to\\godot-mcp-server\\godot_mcp_server.py"],
+      "env": {
+        "GODOT_MCP_ALLOW_GODOT_EXEC": "1"
+      }
+    }
+  }
+}
+```
+
+Merge `GODOT_MCP_ROOT` into `env` if you do not use `~/godot-games` (see [Workspace setup](#workspace-setup-required)).
+
+</details>
+
+<details>
+<summary><strong>Visual Studio Code</strong></summary>
+
+Use the MCP / agent settings your VS Code build provides (often **Settings → MCP** or a project `.vscode/mcp.json`, depending on version and extensions). Paste the same structure as Cursor:
+
+```json
+{
+  "mcpServers": {
+    "godot": {
+      "command": "python3",
+      "args": ["godot_mcp_server.py"],
+      "env": {
+        "GODOT_MCP_ALLOW_GODOT_EXEC": "1"
+      }
+    }
+  }
+}
+```
+
+Use an absolute path in `args` if the workspace folder is not the repo root.
+
+</details>
+
+<details>
+<summary><strong>Claude Desktop</strong></summary>
+
+Edit the app config file:
+
+- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "godot": {
+      "command": "python3",
+      "args": ["/absolute/path/to/godot_mcp_server.py"],
+      "env": {
+        "GODOT_MCP_ALLOW_GODOT_EXEC": "1"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Desktop after saving.
+
+</details>
+
+<details>
+<summary><strong>Claude Code</strong> (CLI)</summary>
+
+Merge into `~/.claude/settings.json` (or use `claude mcp add` if your CLI supports it — check `claude mcp --help`):
+
+```json
+{
+  "mcpServers": {
+    "godot": {
+      "command": "python3",
+      "args": ["godot_mcp_server.py"],
+      "env": {
+        "GODOT_MCP_ALLOW_GODOT_EXEC": "1"
+      },
+      "description": "Godot 4.x game development server"
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Windsurf</strong> (Codeium)</summary>
+
+**macOS / Linux:** edit `~/.codeium/windsurf/mcp_config.json`, or use **CMD+SHIFT+P → “Windsurf: Configure MCP Servers”**.
+
+```json
+{
+  "mcpServers": {
+    "godot": {
+      "command": "python3",
+      "args": ["godot_mcp_server.py"],
+      "env": {
+        "GODOT_MCP_ALLOW_GODOT_EXEC": "1"
+      },
+      "description": "Godot 4.x game development - project, scenes, scripts, assets, runtime"
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Roo Code</strong></summary>
+
+Paste into Roo’s MCP settings (project or global), same JSON shape as above. Repo copy: `roo_code_mcp.json`.
+
+```json
+{
+  "mcpServers": {
+    "godot": {
+      "command": "python3",
+      "args": ["godot_mcp_server.py"],
+      "env": {
+        "GODOT_MCP_ALLOW_GODOT_EXEC": "1"
+      },
+      "description": "Godot 4.x game dev - project, scenes, scripts, assets, runtime"
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Generic JSON</strong> (any MCP host)</summary>
+
+Minimal stdio config — same as `mcp_config.json` in this repo:
+
+```json
+{
+  "mcpServers": {
+    "godot": {
+      "command": "python3",
+      "args": ["godot_mcp_server.py"],
+      "env": {
+        "GODOT_MCP_ALLOW_GODOT_EXEC": "1"
+      },
+      "description": "Godot 4.x game development server - file ops, asset management, runtime integration"
+    }
+  }
+}
+```
+
+</details>
 
 ### Limits (DoS / abuse)
 
 - **Regex search (`godot_search_content`):** Pattern length capped; match list capped; files larger than 2 MiB are skipped. Malicious regex can still be expensive—keep patterns simple.
 - **Asset zip download:** Maximum download size, per-file uncompressed size, total uncompressed size, and file count are enforced before extraction (see constants near the top of `godot_mcp_server.py`).
 - **Asset Library IDs:** `asset_id` for `godot_get_asset_info` / `godot_download_asset` must be numeric digits only.
-
-### IDE Configuration
-
-Copy the JSON for your editor. All configs use stdio transport; merge the `env` block from the workspace section if needed:
-
-| IDE | Config File | JSON |
-|-----|------------|------|
-| **Claude Code** | `~/.claude/settings.json` | `mcp_config.claude.json` |
-| **Cursor** | `.cursor/mcp.json` | `mcp_config.cursor.json` |
-| **Windsurf** | `~/.codeium/windsurf/mcp_config.json` | `windsurf.json` |
-| **Roo Code** | settings or project | `roo_code_mcp.json` |
-| **Generic** | any | `mcp_config.json` |
-| **HTTP Server** | remote URL | use `--transport http` |
 
 ### HTTP Mode (Remote)
 
@@ -173,6 +342,7 @@ python godot_mcp_server.py --transport http --host 127.0.0.1 --port 8765
 Binding to all interfaces (`--host 0.0.0.0`) logs a warning and exposes MCP to your LAN with **no authentication** in this server.
 
 Then use `serverUrl` instead of `command`:
+
 ```json
 {
   "mcpServers": {
@@ -182,6 +352,13 @@ Then use `serverUrl` instead of `command`:
   }
 }
 ```
+
+<details>
+<summary><strong>Why not duplicate HTTP + stdio?</strong></summary>
+
+Only run **one** transport to the same project (stdio **or** HTTP), not both at once, to avoid conflicting MCP sessions.
+
+</details>
 
 ## Tools Reference
 

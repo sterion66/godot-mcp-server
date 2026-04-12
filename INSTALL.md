@@ -101,15 +101,9 @@ python godot_mcp_server.py --transport http --port 8765
 
 ---
 
-## Config Files Included
+## Config files in this repo
 
-| File | Editor |
-|------|--------|
-| `mcp_config.claude.json` | Claude Code |
-| `mcp_config.cursor.json` | Cursor |
-| `windsurf.json` | Windsurf |
-| `roo_code_mcp.json` | Roo Code |
-| `mcp_config.json` | Generic |
+Same JSON snippets are committed as `mcp_config.*.json` and `windsurf.json`. **Step-by-step install for Cursor, VS Code, Claude Desktop, Windsurf, etc.** (with copy-paste blocks) is in the main **[README — Install in your editor](README.md#install-in-your-editor)** section (collapsible sections on GitHub).
 
 ---
 
