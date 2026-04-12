@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61", "wheel"]
+requires = ["setuptools>=82.0.1", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -26,14 +26,14 @@ classifiers = [
   "Topic :: Games/Entertainment",
 ]
 dependencies = [
-  "fastmcp>=3.0.0,<4",
-  "urllib3>=2.0.0",
+  "fastmcp>=3.2.3,<4",
+  "urllib3>=2.6.3",
 ]
 
 [project.optional-dependencies]
 dev = [
-  "ruff>=0.8",
-  "pytest>=8",
+  "ruff>=0.15.10",
+  "pytest>=9.0.3",
 ]
 
 [project.scripts]
