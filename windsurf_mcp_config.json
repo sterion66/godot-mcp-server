@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "godot": {
+      "command": "python",
+      "args": ["godot_mcp_server.py"],
+      "env": {
+        "GODOT_MCP_ALLOW_GODOT_EXEC": "1"
+      },
+      "description": "Godot 4.x game dev - project, scenes, scripts, assets, runtime"
+    }
+  }
+}

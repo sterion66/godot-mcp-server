@@ -1,0 +1,32 @@
+name: Bug report
+description: Report a problem with the Godot MCP server
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill this out.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: MCP client (Cursor, Claude, etc.), OS, Python version, relevant env vars (e.g. GODOT_MCP_ROOT).
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Commit or version
+      description: e.g. git SHA or release tag
+    validations:
+      required: true
