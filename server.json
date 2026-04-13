@@ -1,17 +1,17 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.sterion66/godot",
-  "description": "The most complete Godot 4 MCP server: secure sandboxed workspace, 40+ tools (projects, scenes, scripts, assets, runtime), and plug-and-play setup for major MCP clients.",
+  "description": "The most complete Godot 4 MCP: secure sandbox, 40+ tools (projects–runtime), major MCP clients.",
   "repository": {
     "url": "https://github.com/sterion66/godot-mcp-server",
     "source": "github"
   },
-  "version": "1.0.1",
+  "version": "1.0.2",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "godot-mcp-server",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "transport": {
         "type": "stdio"
       }
