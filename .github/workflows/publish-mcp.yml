@@ -32,7 +32,8 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: python -m twine upload dist/*
+        # Avoid failing when a tag is re-pushed after history rewrite or CI retry (artifact already on PyPI).
+        run: python -m twine upload --skip-existing dist/*
 
       - name: Install mcp-publisher
         run: |
