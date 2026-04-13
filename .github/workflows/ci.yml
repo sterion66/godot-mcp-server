@@ -39,3 +39,10 @@ jobs:
 
       - name: Pytest
         run: pytest
+
+  # Single green check matching branch protection rule name "CI"
+  CI:
+    needs: lint-test
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All matrix jobs passed"
