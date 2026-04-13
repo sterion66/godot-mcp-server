@@ -6,6 +6,8 @@
 
 A comprehensive [FastMCP](https://github.com/jlowin/fastmcp) server for Godot 4.x game development. Provides tooling for AI-assisted workflows: project management, file operations, asset discovery, GDScript development, and optional Godot execution.
 
+<!-- mcp-name: io.github.sterion66/godot -->
+
 [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
 
 **Security model:** All Godot projects, file writes, and Asset Library downloads are restricted to a single **workspace directory** on your machine (default `~/godot-games`). The server refuses paths outside that tree. See [Workspace setup](#workspace-setup-required).
