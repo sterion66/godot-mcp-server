@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godot-mcp-server"
-version = "1.0.0"
-description = "FastMCP server for Godot 4.x — AI-assisted projects, files, assets, and GDScript"
+version = "1.0.1"
+description = "The most complete Godot 4 MCP server: secure sandboxed workspace, 40+ tools (projects, scenes, scripts, assets, runtime), and plug-and-play setup for major MCP clients."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
