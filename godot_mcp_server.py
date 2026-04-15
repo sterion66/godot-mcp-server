@@ -2062,21 +2062,144 @@ def validate_scene(scene_path: str, project_path: Optional[str] = None) -> dict:
         return {"valid": False, "error": str(e)}
 
 
+def _extract_godot_validation_messages(output: str) -> list[str]:
+    """Extract likely compile/parser diagnostics from Godot stdout/stderr text."""
+    if not output:
+        return []
+
+    messages: list[str] = []
+    seen: set[str] = set()
+    keywords = (
+        "parser error",
+        "parse error",
+        "script error",
+        "error:",
+        "failed to compile",
+        "compile error",
+        "cannot infer the type",
+        "identifier not declared",
+        "invalid call",
+        "expected",
+    )
+
+    for raw in output.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        lowered = line.lower()
+        if any(k in lowered for k in keywords):
+            msg = line
+            if msg not in seen:
+                messages.append(msg)
+                seen.add(msg)
+    return messages
+
+
+def _run_godot_strict_script_validation(
+    script_path: Path, project_root: Path, timeout_seconds: int = 45
+) -> dict:
+    """
+    Run Godot in check-only mode for real parser/type diagnostics.
+
+    This does not execute game logic; it asks Godot to compile/check the script.
+    """
+    import subprocess
+
+    found = find_godot_executable()
+    if not found.get("found"):
+        return {
+            "available": False,
+            "ran": False,
+            "success": None,
+            "errors": [],
+            "warnings": [],
+            "error": "Godot executable not found for strict validation",
+        }
+
+    godot_path = found.get("path")
+    args = [
+        str(godot_path),
+        "--headless",
+        "--path",
+        str(project_root),
+        "--check-only",
+        "--script",
+        str(script_path),
+    ]
+
+    try:
+        process = subprocess.run(
+            args,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+            cwd=str(project_root),
+        )
+    except subprocess.TimeoutExpired:
+        return {
+            "available": True,
+            "ran": True,
+            "success": False,
+            "timed_out": True,
+            "errors": ["Strict validation timed out"],
+            "warnings": [],
+        }
+    except Exception as e:
+        return {
+            "available": True,
+            "ran": False,
+            "success": False,
+            "errors": [f"Strict validation failed to run: {e}"],
+            "warnings": [],
+        }
+
+    combined = "\n".join(
+        s for s in [process.stdout or "", process.stderr or ""] if s.strip()
+    )
+    diagnostics = _extract_godot_validation_messages(combined)
+
+    errors: list[str] = []
+    warnings: list[str] = []
+    if process.returncode != 0:
+        if diagnostics:
+            errors.extend(diagnostics)
+        else:
+            errors.append(
+                f"Godot strict check failed with exit code {process.returncode}"
+            )
+    else:
+        warnings.extend(diagnostics)
+
+    return {
+        "available": True,
+        "ran": True,
+        "success": process.returncode == 0,
+        "returncode": process.returncode,
+        "errors": errors,
+        "warnings": warnings,
+        "stdout": (process.stdout or "")[:4000],
+        "stderr": (process.stderr or "")[:4000],
+    }
+
+
 @mcp.tool(
     name="godot_validate_script",
     annotations={
         "title": "Validate Script",
-        "description": "Check GDScript for basic syntax (brace balance, common errors)",
+        "description": "Check GDScript with basic checks and optional strict Godot parser/type validation",
         "readOnlyHint": True,
     },
 )
-def validate_script(script_path: str, project_path: Optional[str] = None) -> dict:
+def validate_script(
+    script_path: str, project_path: Optional[str] = None, strict: bool = True
+) -> dict:
     """
     Validate a GDScript file.
 
     Args:
         script_path: Path to the script
         project_path: Optional project root (defaults to discovery from cwd)
+        strict: If true, run Godot --check-only for parser/type diagnostics when executable is available
 
     Returns:
         Validation results
@@ -2122,6 +2245,32 @@ def validate_script(script_path: str, project_path: Optional[str] = None) -> dic
                 f"Mismatched brackets: {open_brackets} open, {close_brackets} close"
             )
 
+        strict_result = {
+            "available": False,
+            "ran": False,
+            "success": None,
+            "errors": [],
+            "warnings": [],
+        }
+        if strict:
+            project_root = resolve_project_directory(project_path)
+            if project_root:
+                strict_result = _run_godot_strict_script_validation(path, project_root)
+                if strict_result.get("errors"):
+                    errors.extend(
+                        [f"[godot-strict] {msg}" for msg in strict_result["errors"]]
+                    )
+                if strict_result.get("warnings"):
+                    warnings.extend(
+                        [f"[godot-strict] {msg}" for msg in strict_result["warnings"]]
+                    )
+            else:
+                warnings.append(
+                    "[godot-strict] Skipped strict validation: no project root found"
+                )
+        else:
+            warnings.append("[godot-strict] Skipped by request (strict=false)")
+
         return {
             "valid": len(errors) == 0,
             "errors": errors,
@@ -2130,6 +2279,7 @@ def validate_script(script_path: str, project_path: Optional[str] = None) -> dic
             "extends": script.extends,
             "functions": len(script.functions),
             "exports": len(script.exports),
+            "strict_validation": strict_result,
         }
     except Exception as e:
         return {"valid": False, "error": str(e)}
