@@ -6,12 +6,12 @@
     "url": "https://github.com/sterion66/godot-mcp-server",
     "source": "github"
   },
-  "version": "1.0.2",
+  "version": "1.0.3",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "godot-mcp-server",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "transport": {
         "type": "stdio"
       }
